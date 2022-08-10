@@ -17,6 +17,7 @@ import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 import static com.example.demo.utils.ValidationRegex.isRegexUserId;
+import static com.example.demo.utils.ValidationRegex.isRegexUserPw;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @RestController
@@ -120,20 +121,39 @@ public class UserController {
      */
     // Body
     @ResponseBody
-    @Transactional(propagation = Propagation.REQUIRED, isolation = READ_COMMITTED , rollbackFor = Exception.class)
     @PostMapping("")
     public BaseResponse<PostUserRes> createUser(@RequestBody PostUserReq postUserReq) {
-        // TODO: email 관련한 짧은 validation 예시입니다. 그 외 더 부가적으로 추가해주세요!
-        if(postUserReq.getUserId() == null){
-            return new BaseResponse<>(POST_USERS_EMPTY_NUMBER);
+        // 이메일이 입력되지 않았을 경우
+        if(postUserReq.getEmail() == null){
+            return new BaseResponse<>(POST_USERS_EMPTY_EMAIL);
+        }
+        // 비밀번호가 입력되지 않았을 경우
+        if(postUserReq.getPassWord() == null){
+            return new BaseResponse<>(POST_USERS_EMPTY_PASSWORD);
+        }
+        // 전화번호가 입력되지 않았을 경우
+        if(postUserReq.getPhoneNumber() == null){
+            return new BaseResponse<>(POST_USERS_EMPTY_PHONENUMBER);
+        }
+        // 닉네임이 입력되지 않았을 경우
+        if(postUserReq.getNickName() == null){
+            return new BaseResponse<>(POST_USERS_EMPTY_NICKNAME);
         }
         //전화번호 형식
-        if(!isRegexUserId(postUserReq.getUserId())){
+        if(!isRegexUserId(postUserReq.getPhoneNumber())){
             return new BaseResponse<>(POST_USERS_INVALID_NUMBER);
         }
+        //비밀번호 형식
+        if(!isRegexUserPw(postUserReq.getPassWord())){
+            return new BaseResponse<>(POST_USERS_INVALID_PASSWORD);
+        }
         //전화번호 자릿수
-        if(postUserReq.getUserId().length() > 13){
+        if(postUserReq.getPhoneNumber().length() > 13){
             return new BaseResponse<>(POST_USERS_INVALID_NUMBER_COUNT);
+        }
+        //닉네임 자릿수
+        if(postUserReq.getNickName().length()>6 || postUserReq.getNickName().length()<2){
+            return new BaseResponse<>(POST_USERS_INVALID_NICKNAME_COUNT);
         }
         try{
             PostUserRes postUserRes = userService.createUser(postUserReq);
@@ -149,12 +169,23 @@ public class UserController {
      * @return BaseResponse<PostCertificationUserRes>
      */
     @ResponseBody
-    @Transactional(propagation = Propagation.REQUIRED, isolation = READ_COMMITTED , rollbackFor = Exception.class)
-    @PatchMapping("/certification")
-    public BaseResponse<PostCertificationUserRes> postCertificationUser(@RequestBody PostCertificationUserReq postCertificationUserReq){
+    @PostMapping("/auth-code/{userPhoneNumber}")
+    public BaseResponse<PostAuthCodeRes> postCertificationUser(@PathVariable("userPhoneNumber") String userPhoneNumber){
+        // 전화번호가 입력되지 않았을 경우
+        if(userPhoneNumber == null){
+            return new BaseResponse<>(POST_USERS_EMPTY_PHONENUMBER);
+        }
+        //전화번호 형식
+        if(!isRegexUserId(userPhoneNumber)){
+            return new BaseResponse<>(POST_USERS_INVALID_NUMBER);
+        }
+        //전화번호 자릿수
+        if(userPhoneNumber.length() > 13){
+            return new BaseResponse<>(POST_USERS_INVALID_NUMBER_COUNT);
+        }
         try{
-            PostCertificationUserRes postCertificationUserRes = userProvider.certificationUser(postCertificationUserReq);
-            return new BaseResponse<>(postCertificationUserRes);
+            PostAuthCodeRes postAuthCodeRes = userProvider.postAuthCode(userPhoneNumber);
+            return new BaseResponse<>(postAuthCodeRes);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
         }
@@ -210,67 +241,6 @@ public class UserController {
     }
 
     /**
-     * 유저 관심 카테고리 조회 API
-     * [GET] /users/interestCategory/:userNo
-     * @return BaseResponse<GetInterestCategory>
-     */
-    @ResponseBody
-    @GetMapping("/interestCategory/{userNo}") // (GET) 127.0.0.1:9000/users/interestCategory/:userNo
-    public BaseResponse<List<GetInterestCategory>> getInterestCategory(@PathVariable("userNo") int userNo) {
-        // Get Users
-        try{
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userNo != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
-            List<GetInterestCategory> getInterestCategory = userProvider.getInterestCategory(userNo);
-            return new BaseResponse<>(getInterestCategory);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
-    }
-
-    /**
-     * 유저 관심카테고리 설정 API
-     * [PATCH] /users/interestCategory/:userNo
-     * @return BaseResponse<String>
-     */
-    @ResponseBody
-    @Transactional(propagation = Propagation.REQUIRED, isolation = READ_COMMITTED, rollbackFor = Exception.class)
-    @PatchMapping("/interestCategory/{userNo}")
-    public BaseResponse<String> modifyInterestCategory(@PathVariable("userNo") int userNo, @RequestBody InterestCategory interestCategory){
-        try {
-            //jwt에서 idx 추출.
-            int userIdxByJwt = jwtService.getUserIdx();
-            //userIdx와 접근한 유저가 같은지 확인
-            if(userNo != userIdxByJwt){
-                return new BaseResponse<>(INVALID_USER_JWT);
-            }
-            if(interestCategory.getIsCheck().equals("Y")){
-                PatchInterestCategoryReq patchInterestCategoryReq = new PatchInterestCategoryReq(userNo,interestCategory.getInterestCategoryNo(), interestCategory.getIsCheck());
-                userService.modifyInterestCategory(patchInterestCategoryReq);
-
-                String result = "";
-                return new BaseResponse<>(result);
-            }
-            else if(interestCategory.getIsCheck().equals("N")){
-                PatchInterestCategoryReq patchInterestCategoryReq = new PatchInterestCategoryReq(userNo,interestCategory.getInterestCategoryNo(), interestCategory.getIsCheck());
-                userService.modifyInterestCategory(patchInterestCategoryReq);
-
-                String result = "";
-                return new BaseResponse<>(result);
-            }
-            else{
-                return new BaseResponse<>(POST_INVALID_USERS_INTEREST_CATEGORY_INPUT);
-            }
-        } catch (BaseException exception) {
-            System.out.println(exception);
-            return new BaseResponse<>((exception.getStatus()));
-        }
-    }
-
-    /**
      * 자동 로그인 API
      * [GET] /users/auto-login
      * @return BaseResponse<GetInterestCategory>
@@ -288,21 +258,4 @@ public class UserController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
-
-    /**
-     * 카카오 소셜 로그인 API
-     * [GET] /users/login/kakao
-     *
-     */
-/*    @ResponseBody
-    @GetMapping("/login/kakao") // (GET) 127.0.0.1:9000/users/login/kakao
-    public BaseResponse<String> kakaoCallback(@RequestParam String code) throws BaseException {
-        String access_Token = userService.getKaKaoAccessToken(code);
-        userService.createKakaoUser(access_Token);
-        System.out.println("token : " + code);
-        String result = code;
-        return new BaseResponse<>(result);
-    }
-
-*/
 }

@@ -5,10 +5,8 @@ import com.example.demo.src.user.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 
 import javax.sql.DataSource;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Random;
 
@@ -46,7 +44,7 @@ public class UserDao {
     }
 
     public List<GetUserRes> getUsersByUserNo(int userNo){
-        String getUsersByEmailQuery = "select * from User where userNo =?";
+        String getUsersByEmailQuery = "select * from User where userNo = ?";
         int getUsersByEmailParams = userNo;
         return this.jdbcTemplate.query(getUsersByEmailQuery,
                 (rs, rowNum) -> new GetUserRes(
@@ -137,43 +135,39 @@ public class UserDao {
     }
 
     public int createUser(PostUserReq postUserReq){
-        String createUserQuery = "insert into User (userId, userPw, userRegionNo,userCode,userNickname) VALUES (?,?,?,?,?)";
-        Random rand  = new Random();
-        String randomSum= "";
-        for(int i=0; i<4; i++) {
-            String ran = Integer.toString(rand.nextInt(10));
-            randomSum+=ran;
-        }
-        int userCode = Integer.parseInt(randomSum);
-        Object[] createUserParams = new Object[]{postUserReq.getUserId(), userCode, postUserReq.getUserRegionNo(),userCode,"당근 유저"};
+        String createUserQuery = "insert into User (userEmail, userPw, userPhoneNumber,userNickName,userProfileImageUrl) VALUES (?,?,?,?,?)";
+
+        Object[] createUserParams = new Object[]{postUserReq.getEmail(), postUserReq.getPassWord(), postUserReq.getPhoneNumber(), postUserReq.getNickName(),
+                "https://firebasestorage.googleapis.com/v0/b/risingtest-11264.appspot.com/o/images%2F%EC%95%84%EC%9D%B4%EB%94%94%EC%96%B4%EC%8A%A4%20%EA%B8%B0%EB%B3%B8%EC%9D%B4%EB%AF%B8%EC%A7%80.png?alt=media&token=8f45a074-b948-4f70-8b0a-4a70ae83b585"};
         this.jdbcTemplate.update(createUserQuery, createUserParams);
 
         String lastInsertIdQuery = "select last_insert_id()";
         return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
     }
 
-    public int checkUserId(String userId){
-        String checkUserIdQuery = "select exists(select userId from User where userId = ?)";
-        String checkUserIdParams = userId;
-        return this.jdbcTemplate.queryForObject(checkUserIdQuery,
+    public int checkUserEmail(String userEmail){
+        String checkUserEmailQuery = "select exists(select userEmail from User where userEmail = ?)";
+        String checkUserEmailParams = userEmail;
+        return this.jdbcTemplate.queryForObject(checkUserEmailQuery,
                 int.class,
-                checkUserIdParams);
+                checkUserEmailParams);
     }
 
-    /*public int certificationUser(PostCertificationUserReq postCertificationUserReq){
-        String certificationUserQuery = "select userNo from User where userId = ? ";
-        String getUserIdParams = postCertificationUserReq.getUserId();
-        return this.jdbcTemplate.queryForObject(certificationUserQuery,
-                (rs,rowNum)-> new User(
-                        rs.getInt("userNo"),
-                        rs.getString("userId"),
-                        rs.getString("userPw"),
-                        rs.getString("userNickname"),
-                        rs.getString("status")
-                ),
-                getUserIdParams
-        );
-    }*/
+    public int checkUserPhoneNumber(String userPhoneNumber){
+        String checkUserPhoneNumberQuery = "select exists(select userPhoneNumber from User where userPhoneNumber = ?)";
+        String checkUserPhoneNumberParams = userPhoneNumber;
+        return this.jdbcTemplate.queryForObject(checkUserPhoneNumberQuery,
+                int.class,
+                checkUserPhoneNumberParams);
+    }
+
+    public int checkUserNickName(String userNickName){
+        String checkUserNickNameQuery = "select exists(select userNickName from User where userNickName = ?)";
+        String checkUserNickNameParams = userNickName;
+        return this.jdbcTemplate.queryForObject(checkUserNickNameQuery,
+                int.class,
+                checkUserNickNameParams);
+    }
 
     public int modifyUserName(PatchUserReq patchUserReq){
         String modifyUserNameQuery = "update User set userNickname = ? where userNo = ? ";
@@ -198,20 +192,6 @@ public class UserDao {
                 );
 
     }
-    public User getId(PostCertificationUserReq postCertificationUserReq){
-        String getIdQuery = "select userNo, userId, userPw, userNickname, status from User where userId = ? ";
-        System.out.println(postCertificationUserReq.getUserId());
-        String getIdParams = postCertificationUserReq.getUserId();
-        return this.jdbcTemplate.queryForObject(getIdQuery,
-                (rs,rowNum)-> new User(
-                        rs.getInt("userNo"),
-                        rs.getString("userId"),
-                        rs.getString("userPw"),
-                        rs.getString("userNickname"),
-                        rs.getString("status")
-                ),
-                getIdParams);
-    }
     public User getNo(int userNo){
         String getIdQuery = "select userNo, userId, userPw, userNickname, status from User where userNo = ? ";
         int getNoParams = userNo;
@@ -225,11 +205,22 @@ public class UserDao {
                 ),
                 getNoParams);
     }
-    public int setPw(String userId,String pw){
-        String serUserPwNameQuery = "update User set userPw = ? where userId = ? ";
-        Object[] serUserPwParams = new Object[]{pw, userId};
-        System.out.println(pw);
-        return this.jdbcTemplate.update(serUserPwNameQuery,serUserPwParams);
+    public int postAuthCode(String userPhoneNumber,String authCode){
+        String insertAuthCodeQuery = "insert into AuthCode (authCode, userPhoneNumber) VALUES (?,?)";
+        Object[] insertAuthCodeParams = new Object[]{authCode, userPhoneNumber};
+        return this.jdbcTemplate.update(insertAuthCodeQuery,insertAuthCodeParams);
+    }
+    public int patchAuthCode(String userPhoneNumber,String authCode){
+        String modifyUserPwNameQuery = "update AuthCode set authCode = ? where userPhoneNumber = ? ";
+        Object[] modifyUserPwParams = new Object[]{authCode, userPhoneNumber};
+        return this.jdbcTemplate.update(modifyUserPwNameQuery,modifyUserPwParams);
+    }
+    public int checkAuthPhoneNumber(String userPhoneNumber){
+        String checkUserNickNameQuery = "select exists(select userPhoneNumber from AuthCode where userPhoneNumber = ?)";
+        String checkUserNickNameParams = userPhoneNumber;
+        return this.jdbcTemplate.queryForObject(checkUserNickNameQuery,
+                int.class,
+                checkUserNickNameParams);
     }
     public int modifyUserStatusLogIn(PostLoginReq postLoginReq){
         String modifyUserNameQuery = "update User set status = ? where userId = ? ";
@@ -243,49 +234,6 @@ public class UserDao {
         Object[] modifyUserNameParams = new Object[]{"Active", postLoginReq.getUserId()};
 
         return this.jdbcTemplate.update(modifyUserNameQuery,modifyUserNameParams);
-    }
-
-    public List<GetInterestCategory> getInterestCategory(int userNo){
-        String getGetMyCarrotByUserNoQuery = "select " +
-                "userNo, " +
-                "case " +
-                "when (userInterestCategoryNo = 1) then '디지털기기' " +
-                "when (userInterestCategoryNo = 2) then '생활가전' " +
-                "when (userInterestCategoryNo = 3) then '가구/인테리어' " +
-                "when (userInterestCategoryNo = 4) then '유아동' " +
-                "when (userInterestCategoryNo = 5) then '생활/가공식품' " +
-                "when (userInterestCategoryNo = 6) then '유아도서' " +
-                "when (userInterestCategoryNo = 7) then '스포츠/레저' " +
-                "when (userInterestCategoryNo = 8) then '여성잡화' " +
-                "when (userInterestCategoryNo = 9) then '여성의류' " +
-                "when (userInterestCategoryNo = 10) then '남성패션/잡화' " +
-                "when (userInterestCategoryNo = 11) then '게임/취미' " +
-                "when (userInterestCategoryNo = 12) then '뷰티/미용' " +
-                "when (userInterestCategoryNo = 13) then '반려동물용품' " +
-                "when (userInterestCategoryNo = 14) then '도서/티켓/음반' " +
-                "when (userInterestCategoryNo = 15) then '식물' " +
-                "when (userInterestCategoryNo = 16) then '기타 중고물품' " +
-                "when (userInterestCategoryNo = 17) then '삽니다' " +
-                "end as userInterestCategory, isCheck " +
-                "from UserInterestCategory " +
-                "where userNo = ?";
-        int getInterestCategoryByUserNoParams = userNo;
-        return this.jdbcTemplate.query(getGetMyCarrotByUserNoQuery,
-                (rs, rowNum) -> new GetInterestCategory(
-                        rs.getInt("userNo"),
-                        rs.getString("userInterestCategory"),
-                        rs.getString("isCheck")),
-                getInterestCategoryByUserNoParams);
-    }
-
-    public int modifyInterestCategory(PatchInterestCategoryReq patchInterestCategoryReq){
-        String modifyInterestCategoryQuery = "update UserInterestCategory set isCheck = ? where userNo = ? and userInterestCategoryNo = ?";
-        Object[] modifyUserNameParams = new Object[]{
-                patchInterestCategoryReq.getIsCheck(),
-                patchInterestCategoryReq.getUserNo(),
-                patchInterestCategoryReq.getInterestCategoryNo()};
-
-        return this.jdbcTemplate.update(modifyInterestCategoryQuery,modifyUserNameParams);
     }
 
 }

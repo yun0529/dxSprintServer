@@ -7,7 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class PostCertificationUserRes {
-    private int userNo;
-    private int certificationNum;
+public class PostAuthCodeRes {
+    private String authCode;
 }

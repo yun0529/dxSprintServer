@@ -4,7 +4,6 @@ package com.example.demo.src.user;
 import com.example.demo.config.BaseException;
 import com.example.demo.src.user.model.*;
 import com.example.demo.utils.JwtService;
-import com.example.demo.utils.SHA256;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +16,7 @@ import java.util.Random;
 
 import static com.example.demo.config.BaseResponseStatus.*;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
+import static org.springframework.transaction.annotation.Isolation.REPEATABLE_READ;
 
 //Provider : Read의 비즈니스 로직 처리
 @Service
@@ -83,14 +83,29 @@ public class UserProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
-
-    public int checkUserId(String userId) throws BaseException{
+    public int checkUserEmail(String userEmail) throws BaseException{
         try{
-            return userDao.checkUserId(userId);
+            return userDao.checkUserEmail(userEmail);
         } catch (Exception exception){
             throw new BaseException(DATABASE_ERROR);
         }
     }
+    public int checkUserPhoneNumber(String userPhoneNumber) throws BaseException{
+        try{
+            return userDao.checkUserPhoneNumber(userPhoneNumber);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
+    public int checkUserNickName(String userNickName) throws BaseException{
+        try{
+            return userDao.checkUserNickName(userNickName);
+        } catch (Exception exception){
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED, rollbackFor = Exception.class)
     public PostLoginRes logIn(PostLoginReq postLoginReq) throws BaseException{
         User user = userDao.getPwd(postLoginReq);
@@ -116,46 +131,30 @@ public class UserProvider {
             throw new BaseException(FAILED_TO_LOGIN);
         }
     }
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED, rollbackFor = Exception.class)
-    public PostCertificationUserRes certificationUser(PostCertificationUserReq postCertificationUserReq) throws BaseException {
-        User user = userDao.getId(postCertificationUserReq);
-        String userCertId = postCertificationUserReq.getUserId();
-        if(user.getUserId().equals(userCertId)){
-            if(user.getStatus().equals("Active")){
-                throw new BaseException(FAILED_TO_LOGIN_STATUS);
-            }
-            else{
-                int userNo = user.getUserNo();
-                Random rand  = new Random();
-                String randomSum= "";
-                for(int i=0; i<4; i++) {
-                    String ran = Integer.toString(rand.nextInt(10));
-                    randomSum+=ran;
-                }
-                int userCode = Integer.parseInt(randomSum);
-                System.out.println(userCode);
-                userDao.setPw(user.getUserId(), String.valueOf(userCode));
-                return new PostCertificationUserRes(userNo,userCode);
-            }
-        }
-        else{
-            throw new BaseException(FAILED_TO_LOGIN);
-        }
-    }
-    public List<GetInterestCategory> getInterestCategory(int userNo) throws BaseException {
-        User user = userDao.getNo(userNo);
-        if(user.getStatus().equals("Inactive")){
-            throw new BaseException(DO_LOGIN);
-        }
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = REPEATABLE_READ, rollbackFor = Exception.class)
+    public PostAuthCodeRes postAuthCode(String userPhoneNumber) throws BaseException {
         try {
-            List<GetInterestCategory> getInterestCategory = userDao.getInterestCategory(userNo);
-            return getInterestCategory;
-        } catch (Exception exception) {
-            System.out.println(exception);
-            exception.printStackTrace();
+            Random rand  = new Random();
+            String randomSum= "";
+            for(int i=0; i<6; i++) {
+                String ran = Integer.toString(rand.nextInt(10));
+                randomSum+=ran;
+            }
+            String userCode = randomSum;
+            System.out.println(userCode);
+            if (userDao.checkAuthPhoneNumber(userPhoneNumber) == 1){
+                userDao.patchAuthCode(userPhoneNumber, userCode);
+            }else {
+                userDao.postAuthCode(userPhoneNumber, userCode);
+            }
+
+            return new PostAuthCodeRes(userCode);
+        }
+        catch (Exception e){
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
     public void getAutoLogin(int userNo) throws BaseException{
         User user = userDao.getNo(userNo);
         if(user.getStatus().equals("Inactive")){

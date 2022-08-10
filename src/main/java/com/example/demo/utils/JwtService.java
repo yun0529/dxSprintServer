@@ -56,6 +56,14 @@ public class JwtService {
         HttpServletRequest request = ((ServletRequestAttributes)RequestContextHolder.currentRequestAttributes()).getRequest();
         return request.getHeader("X-ACCESS-TOKEN");
     }
+    public Boolean checkJwt() {
+        String accessToken = getJwt();
+        if (accessToken == null || accessToken.length() == 0) {
+            return true;
+        }else{
+            return false;
+        }
+    }
 
     /*
     JWT에서 userIdx 추출
