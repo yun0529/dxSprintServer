@@ -69,7 +69,7 @@ public class CrewDao {
     }
     public List<GetCrews> getCrews(){
         String getFestivalsQuery = "select " +
-                "festivalIdx, MAIN_IMG_NORMAL as festivalImageUrl, MAIN_TITLE as title, crewName, crewGender, " +
+                "crewIdx, festivalIdx, MAIN_IMG_NORMAL as festivalImageUrl, MAIN_TITLE as title, crewName, crewGender, " +
                 "(select count(case when (Member.crewIdx = Crew.crewIdx) then 1 end) from DXDB.Member) + 1 as crewHeadCount, " +
                 "crewHeadCount as totalHeadCount, crewMeetDate," +
                 "(select count(case when (CrewDibs.status = 'Active') then 1 end) from CrewDibs where CrewDibs.crewIdx = Crew.crewIdx) as dibsCount "  +
@@ -77,6 +77,7 @@ public class CrewDao {
                 "left join Festival on Crew.festivalIdx = Festival.UC_SEQ ";
         return this.jdbcTemplate.query(getFestivalsQuery,
                 (rs,rowNum) -> new GetCrews(
+                        rs.getInt("crewIdx"),
                         rs.getInt("festivalIdx"),
                         rs.getString("festivalImageUrl"),
                         rs.getString("title"),
@@ -90,7 +91,7 @@ public class CrewDao {
     }
     public List<GetCrews> getCrewsByCrewIdx(int crewIdx){
         String getFestivalsQuery = "select " +
-                "festivalIdx, MAIN_IMG_NORMAL as festivalImageUrl, MAIN_TITLE as title, crewName, crewGender, " +
+                "crewIdx, festivalIdx, MAIN_IMG_NORMAL as festivalImageUrl, MAIN_TITLE as title, crewName, crewGender, " +
                 "(select count(case when (Member.crewIdx = ?) then 1 end) from DXDB.Member) + 1 as crewHeadCount, " +
                 "crewHeadCount as totalHeadCount, crewMeetDate, "  +
                 "(select count(case when (CrewDibs.status = 'Active') then 1 end) from CrewDibs where CrewDibs.crewIdx = Crew.crewIdx) as dibsCount "  +
@@ -100,6 +101,7 @@ public class CrewDao {
         int getCrewParams = crewIdx;
         return this.jdbcTemplate.query(getFestivalsQuery,
                 (rs,rowNum) -> new GetCrews(
+                        rs.getInt("crewIdx"),
                         rs.getInt("festivalIdx"),
                         rs.getString("festivalImageUrl"),
                         rs.getString("title"),

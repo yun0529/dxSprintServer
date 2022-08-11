@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class GetCrews {
+    int crewIdx;
     int festivalIdx;
     String festivalImageUrl;
     String title;
