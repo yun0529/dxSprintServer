@@ -71,4 +71,15 @@ public class CrewProvider {
             throw new BaseException(DATABASE_ERROR);
         }
     }
+
+    public List<GetCrews> getCrewsByFestival(int festivalIdx) throws BaseException{
+        try{
+            List<GetCrews> getCrews = crewDao.getCrewsByFestivalIdx(festivalIdx);
+            return getCrews;
+        }
+        catch (Exception exception) {
+            System.out.println(exception);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
 }

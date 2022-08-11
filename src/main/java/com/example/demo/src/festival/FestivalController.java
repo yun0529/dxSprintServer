@@ -170,4 +170,7 @@ public class FestivalController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+
+
 }

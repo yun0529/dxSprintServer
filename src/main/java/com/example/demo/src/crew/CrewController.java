@@ -173,4 +173,21 @@ public class CrewController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+
+    /**
+     * 축제번호로 크루 조회 API
+     * [GET] /crews/festival/:festivalIdx
+     * @return BaseResponse<PostFestivalReq>
+     */
+    // Body
+    @ResponseBody
+    @GetMapping("/festival/{festivalIdx}")
+    public BaseResponse<List<GetCrews>> getCrewsByFestival(@PathVariable("festivalIdx") int festivalIdx) {
+        try{
+            List<GetCrews> getCrews = crewProvider.getCrewsByFestival(festivalIdx);
+            return new BaseResponse<>(getCrews);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
 }

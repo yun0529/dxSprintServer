@@ -198,5 +198,28 @@ public class CrewDao {
                 int.class,
                 checkCrewIdxParams, checkUserIdxParams);
     }
-
+    public List<GetCrews> getCrewsByFestivalIdx(int festivalIdx){
+        String getFestivalsQuery = "select " +
+                "crewIdx, festivalIdx, MAIN_IMG_NORMAL as festivalImageUrl, MAIN_TITLE as title, crewName, crewGender, " +
+                "(select count(case when (Member.crewIdx = Crew.crewIdx) then 1 end) from DXDB.Member) + 1 as crewHeadCount, " +
+                "crewHeadCount as totalHeadCount, crewMeetDate, " +
+                "(select count(case when (CrewDibs.status = 'Active') then 1 end) from CrewDibs where CrewDibs.crewIdx = Crew.crewIdx) as dibsCount " +
+                "from Crew " +
+                "left join Festival on Crew.festivalIdx = Festival.UC_SEQ " +
+                "where festivalIdx = ?";
+        int getFestivalParams = festivalIdx;
+        return this.jdbcTemplate.query(getFestivalsQuery,
+                (rs,rowNum) -> new GetCrews(
+                        rs.getInt("crewIdx"),
+                        rs.getInt("festivalIdx"),
+                        rs.getString("festivalImageUrl"),
+                        rs.getString("title"),
+                        rs.getString("crewName"),
+                        rs.getString("crewGender"),
+                        rs.getInt("crewHeadCount"),
+                        rs.getInt("totalHeadCount"),
+                        rs.getString("crewMeetDate"),
+                        rs.getInt("dibsCount")), getFestivalParams
+        );
+    }
 }
