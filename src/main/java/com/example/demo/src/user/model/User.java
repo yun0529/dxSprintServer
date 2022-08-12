@@ -10,9 +10,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class User {
-    private int userNo;
-    private String userId;
+    private int userIdx;
+    private String userEmail;
     private String userPw;
-    private String userNickname;
+    private String userNickName;
     private String status;
 }

@@ -16,8 +16,7 @@ import java.util.List;
 
 
 import static com.example.demo.config.BaseResponseStatus.*;
-import static com.example.demo.utils.ValidationRegex.isRegexUserId;
-import static com.example.demo.utils.ValidationRegex.isRegexUserPw;
+import static com.example.demo.utils.ValidationRegex.*;
 import static org.springframework.transaction.annotation.Isolation.READ_COMMITTED;
 
 @RestController
@@ -147,6 +146,10 @@ public class UserController {
         if(!isRegexUserPw(postUserReq.getPassWord())){
             return new BaseResponse<>(POST_USERS_INVALID_PASSWORD);
         }
+        //이메일 형식
+        if(!isRegexUserEmail(postUserReq.getPhoneNumber())){
+            return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
+        }
         //전화번호 자릿수
         if(postUserReq.getPhoneNumber().length() > 13){
             return new BaseResponse<>(POST_USERS_INVALID_NUMBER_COUNT);
@@ -192,18 +195,28 @@ public class UserController {
     }
 
     /**
-     * 로그인 API
-     * [POST] /users/logIn
+     * 이메일 로그인 API
+     * [POST] /users/email
      * @return BaseResponse<PostLoginRes>
      */
     @ResponseBody
-    @PostMapping("/logIn")
+    @PostMapping("/email")
     @Transactional(propagation = Propagation.REQUIRED, isolation = READ_COMMITTED, rollbackFor = Exception.class)
-    public BaseResponse<PostLoginRes> logIn(@RequestBody PostLoginReq postLoginReq){
+    public BaseResponse<PostLoginRes> emailLogIn(@RequestBody PostLoginReq postLoginReq){
+        // 이메일이 입력되지 않았을 경우
+        if(postLoginReq.getEmail() == null){
+            return new BaseResponse<>(POST_USERS_EMPTY_EMAIL);
+        }
+        if(postLoginReq.getPassword() == null){
+            return new BaseResponse<>(POST_USERS_EMPTY_PASSWORD);
+        }
+        //이메일 형식
+        if(!isRegexUserEmail(postLoginReq.getEmail())){
+            return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
+        }
         try{
-            // TODO: 로그인 값들에 대한 형식적인 validation 처리해주셔야합니다!
-            // TODO: 유저의 status ex) 비활성화된 유저, 탈퇴한 유저 등을 관리해주고 있다면 해당 부분에 대한 validation 처리도 해주셔야합니다.
-            PostLoginRes postLoginRes = userProvider.logIn(postLoginReq);
+
+            PostLoginRes postLoginRes = userProvider.emailLogIn(postLoginReq);
             return new BaseResponse<>(postLoginRes);
         } catch (BaseException exception){
             return new BaseResponse<>(exception.getStatus());
@@ -226,11 +239,11 @@ public class UserController {
             if(userNo != userIdxByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-            if(user.getUserNickname().length() > 13){
+            if(user.getUserNickName().length() > 13){
                 return new BaseResponse<>(INVALID_USER_NICKNAME_LENGTH);
             }
             //같다면 유저네임 변경
-            PatchUserReq patchUserReq = new PatchUserReq(userNo,user.getUserNickname());
+            PatchUserReq patchUserReq = new PatchUserReq(userNo,user.getUserNickName());
             userService.modifyUserName(patchUserReq);
 
             String result = "";

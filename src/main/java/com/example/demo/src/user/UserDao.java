@@ -176,18 +176,17 @@ public class UserDao {
         return this.jdbcTemplate.update(modifyUserNameQuery,modifyUserNameParams);
     }
 
-    public User getPwd(PostLoginReq postLoginReq){
-        String getPwdQuery = "select userNo, userId, userPw, userNickname, status from User where userId = ?";
-        String getPwdParams = postLoginReq.getUserId();
+    public User getUserByEmail(PostLoginReq postLoginReq){
+        String getPwdQuery = "select userIdx, userEmail, userPw, userNickName, status from User where userEmail = ?";
+        String getPwdParams = postLoginReq.getEmail();
 
         return this.jdbcTemplate.queryForObject(getPwdQuery,
                 (rs,rowNum)-> new User(
-                        rs.getInt("userNo"),
-                        rs.getString("userId"),
+                        rs.getInt("userIdx"),
+                        rs.getString("userEmail"),
                         rs.getString("userPw"),
-                        rs.getString("userNickname"),
-                        rs.getString("status")
-                ),
+                        rs.getString("userNickName"),
+                        rs.getString("status")),
                 getPwdParams
                 );
 
@@ -223,15 +222,8 @@ public class UserDao {
                 checkUserNickNameParams);
     }
     public int modifyUserStatusLogIn(PostLoginReq postLoginReq){
-        String modifyUserNameQuery = "update User set status = ? where userId = ? ";
-        Random rand  = new Random();
-        String randomSum= "";
-        for(int i=0; i<4; i++) {
-            String ran = Integer.toString(rand.nextInt(10));
-            randomSum+=ran;
-        }
-        int userCode = Integer.parseInt(randomSum);
-        Object[] modifyUserNameParams = new Object[]{"Active", postLoginReq.getUserId()};
+        String modifyUserNameQuery = "update User set status = ? where userEmail = ? ";
+        Object[] modifyUserNameParams = new Object[]{"Active", postLoginReq.getEmail()};
 
         return this.jdbcTemplate.update(modifyUserNameQuery,modifyUserNameParams);
     }

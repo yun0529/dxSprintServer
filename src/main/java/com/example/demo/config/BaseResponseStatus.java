@@ -34,6 +34,7 @@ public enum BaseResponseStatus {
     POST_USERS_INVALID_PASSWORD(false, 2016, "비밀번호 형식을 확인해주세요."),
     POST_USERS_INVALID_NUMBER_COUNT(false,2017,"전화번호 자릿수를 확인해주세요."),
     POST_USERS_INVALID_NICKNAME_COUNT(false,2018,"닉네임은 2~6자로 입력해주세요."),
+    POST_USERS_INVALID_EMAIL(false, 2019, "이메일 형식을 확인해주세요."),
     // [POST] /festivals
     POST_FESTIVALS_INVALID_MAIN_TITLE(false,2100,"콘텐츠명 글자수를 확인해주세요."),
     POST_FESTIVALS_INVALID_GUGUN_NM(false,2101,"군,구 글자수를 확인해주세요."),

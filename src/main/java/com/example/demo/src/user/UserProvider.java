@@ -4,6 +4,7 @@ package com.example.demo.src.user;
 import com.example.demo.config.BaseException;
 import com.example.demo.src.user.model.*;
 import com.example.demo.utils.JwtService;
+import com.example.demo.utils.SHA256;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,14 +108,15 @@ public class UserProvider {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = READ_COMMITTED, rollbackFor = Exception.class)
-    public PostLoginRes logIn(PostLoginReq postLoginReq) throws BaseException{
-        User user = userDao.getPwd(postLoginReq);
-        String encryptPwd = postLoginReq.getUserPw();
-        /*try {
-            encryptPwd=new SHA256().encrypt(postLoginReq.getUserPw());
+    public PostLoginRes emailLogIn(PostLoginReq postLoginReq) throws BaseException{
+        User user = userDao.getUserByEmail(postLoginReq);
+        String encryptPwd = postLoginReq.getPassword();
+
+        try {
+            encryptPwd=new SHA256().encrypt(postLoginReq.getPassword());
         } catch (Exception ignored) {
             throw new BaseException(PASSWORD_DECRYPTION_ERROR);
-        }*/
+        }
 
         if(user.getUserPw().equals(encryptPwd)){
             if(user.getStatus().equals("Active")){
@@ -122,9 +124,9 @@ public class UserProvider {
             }
             else{
                 userDao.modifyUserStatusLogIn(postLoginReq);
-                int userNo = user.getUserNo();
-                String jwt = jwtService.createJwt(userNo);
-                return new PostLoginRes(userNo,jwt);
+                int userIdx = user.getUserIdx();
+                String jwt = jwtService.createJwt(userIdx);
+                return new PostLoginRes(userIdx,jwt);
             }
         }
         else{
