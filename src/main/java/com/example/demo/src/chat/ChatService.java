@@ -2,6 +2,7 @@ package com.example.demo.src.chat;
 
 
 import com.example.demo.config.BaseException;
+import com.example.demo.src.chat.model.PostMessage;
 import com.example.demo.src.crew.model.CheckCrewHeadCount;
 import com.example.demo.src.crew.model.CrewDibsReq;
 import com.example.demo.src.crew.model.PostCrewParticipateReq;
@@ -38,5 +39,21 @@ public class ChatService {
     }
     //POST
     //@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = REPEATABLE_READ , rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = SERIALIZABLE , rollbackFor = Exception.class)
+    public void postMessage(PostMessage postMessage) throws BaseException {
+        User user = chatDao.getUserByUserIdx(postMessage.getUserIdx());
+        if(user.getStatus().equals("Inactive")){
+            throw new BaseException(DO_LOGIN);
+        }
+        try{
 
+            chatDao.postMessage(postMessage);
+
+        } catch (Exception exception) {
+            System.out.println(exception);
+            exception.getStackTrace();
+            throw new BaseException(DATABASE_ERROR);
+        }
+
+    }
 }

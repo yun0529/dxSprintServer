@@ -66,6 +66,8 @@ public enum BaseResponseStatus {
     POST_CREWS_INVALID_CREW_MAX_AGE(false,2208,"크루 최대 나이는 100세까지만 가능합니다."),
     //[POST] /crews(/festivals)/dibs
     POST_INVALID_DIBS_STATUS(false,2250,"좋아요 상태는 Active 또는 Inactive로 입력해주세요."),
+    //[POST] /chat/message
+    POST_INVALID_MESSAGE_LENGTH(false,2260,"문자는 5000자 이내로 입력해주세요."),
     /**
      * 3000 : Response 오류
      */

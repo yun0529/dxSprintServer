@@ -3,6 +3,7 @@ package com.example.demo.src.chat;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.chat.model.GetChattingRoomList;
+import com.example.demo.src.chat.model.GetMessageList;
 import com.example.demo.src.crew.model.GetCrews;
 import com.example.demo.src.crew.model.GetDetailCrews;
 import com.example.demo.src.crew.model.GetParticipateCrew;
@@ -35,6 +36,16 @@ public class ChatProvider {
         try{
             List<GetChattingRoomList> getChattingRoomLists = chatDao.getChattingRoom(userIdx);
             return getChattingRoomLists;
+        }
+        catch (Exception exception) {
+            System.out.println(exception);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+    public List<GetMessageList> getMessage(int roomIdx) throws BaseException{
+        try{
+            List<GetMessageList> getMessageLists = chatDao.getMessage(roomIdx);
+            return getMessageLists;
         }
         catch (Exception exception) {
             System.out.println(exception);
