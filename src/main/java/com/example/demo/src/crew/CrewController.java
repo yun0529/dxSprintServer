@@ -190,4 +190,20 @@ public class CrewController {
             return new BaseResponse<>((exception.getStatus()));
         }
     }
+    /**
+     * 참여한 크루 조회 API
+     * [GET] /crews/participate/:userIdx
+     * @return BaseResponse<List<GetParticipateCrew>>
+     */
+    // Body
+    @ResponseBody
+    @GetMapping("/participate/{userIdx}")
+    public BaseResponse<List<GetParticipateCrew>> getParticipateCrew(@PathVariable("userIdx") int userIdx) {
+        try{
+            List<GetParticipateCrew> getParticipateCrews = crewProvider.getParticipateCrew(userIdx);
+            return new BaseResponse<>(getParticipateCrews);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
 }

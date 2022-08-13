@@ -27,19 +27,25 @@ public class CrewDao {
         Object[] insertAuthCodeParams = new Object[]{postCrewReq.getUC_SEQ(), postCrewReq.getUserIdx(), postCrewReq.getFestivalTitle(), postCrewReq.getCrewName(),
                 postCrewReq.getCrewComment(), postCrewReq.getCrewHeadCount(), postCrewReq.getCrewMeetDate(), postCrewReq.getCrewMeetTime(),postCrewReq.getCrewGender(),
         postCrewReq.getCrewMinAge(), postCrewReq.getCrewMaxAge()};
-        return this.jdbcTemplate.update(insertAuthCodeQuery,insertAuthCodeParams);
+        this.jdbcTemplate.update(insertAuthCodeQuery,insertAuthCodeParams);
+        String lastInsertIdQuery = "select last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
     }
 
     public int postRoom(int crewIdx){
         String insertAuthCodeQuery = "insert into Room (crewIdx) VALUES (?)";
         Object[] insertAuthCodeParams = new Object[]{crewIdx};
-        return this.jdbcTemplate.update(insertAuthCodeQuery,insertAuthCodeParams);
+        this.jdbcTemplate.update(insertAuthCodeQuery,insertAuthCodeParams);
+        String lastInsertIdQuery = "select last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
     }
 
     public int postCrewParticipate(PostCrewParticipateReq postCrewParticipateReq){
         String insertAuthCodeQuery = "insert into Member (crewIdx, roomIdx, userIdx) VALUES (?,?,?)";
         Object[] insertAuthCodeParams = new Object[]{postCrewParticipateReq.getCrewIdx(), postCrewParticipateReq.getRoomIdx(), postCrewParticipateReq.getUserIdx()};
-        return this.jdbcTemplate.update(insertAuthCodeQuery,insertAuthCodeParams);
+        this.jdbcTemplate.update(insertAuthCodeQuery,insertAuthCodeParams);
+        String lastInsertIdQuery = "select last_insert_id()";
+        return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
     }
 
     public User getUserByUserIdx(int userIdx){
@@ -58,8 +64,8 @@ public class CrewDao {
     public CheckCrewHeadCount getCrewHeadCount(int crewIdx){
         String getIdQuery = "select count(Member.userIdx), crewHeadCount " +
                 "from DXDB.Member " +
-                "join Crew " +
-                "where crewIdx = ?";
+                "join Crew on Member.crewIdx = Crew.crewIdx " +
+                "where Member.crewIdx = ?";
         int getIdxParams = crewIdx;
         return this.jdbcTemplate.queryForObject(getIdQuery,
                 (rs,rowNum)-> new CheckCrewHeadCount(

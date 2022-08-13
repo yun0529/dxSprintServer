@@ -45,8 +45,9 @@ public class CrewService {
         }
         try{
             int crewIdx = crewDao.postCrew(postCrewReq);
-
-            crewDao.postRoom(crewIdx);
+            int roomIdx = crewDao.postRoom(crewIdx);
+            PostCrewParticipateReq postCrewParticipateReq = new PostCrewParticipateReq(crewIdx, roomIdx, postCrewReq.getUserIdx());
+            crewDao.postCrewParticipate(postCrewParticipateReq);
 
         } catch (Exception exception) {
             System.out.println(exception);
