@@ -23,11 +23,12 @@ public class ChatDao {
 
     public List<GetChattingRoomList> getChattingRoom(int userIdx){
         String getFestivalsQuery = "select " +
-                "Room.crewIdx, Room.roomIdx, MAIN_IMG_NORMAL, crewName, type, chatContent, Chat.updatedAt " +
+                "Room.crewIdx, Room.roomIdx, MAIN_IMG_NORMAL as festivalImageUrl, crewName, type, chatContent, Chat.updatedAt " +
                 "from DXDB.Room " +
                 "join DXDB.Member on Room.roomIdx = Member.roomIdx " +
                 "join Crew on Member.crewIdx = Crew.crewIdx " +
                 "left join DXDB.Chat on Room.roomIdx = Chat.roomIdx " +
+                "join Festival on Crew.festivalIdx = Festival.UC_SEQ " +
                 "where Member.userIdx = ? " +
                 "group by Room.roomIdx";
         int getUserParams = userIdx;
@@ -35,7 +36,7 @@ public class ChatDao {
                 (rs,rowNum) -> new GetChattingRoomList(
                         rs.getInt("crewIdx"),
                         rs.getInt("roomIdx"),
-                        rs.getString("MAIN_IMG_NORMAL"),
+                        rs.getString("festivalImageUrl"),
                         rs.getString("crewName"),
                         rs.getString("type"),
                         rs.getString("chatContent"),
