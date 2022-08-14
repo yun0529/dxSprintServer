@@ -2,6 +2,7 @@ package com.example.demo.src.chat;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.config.BaseResponse;
+import com.example.demo.src.chat.model.GetChattingParticipateUser;
 import com.example.demo.src.chat.model.GetChattingRoomList;
 import com.example.demo.src.chat.model.GetMessageList;
 import com.example.demo.src.chat.model.PostMessage;
@@ -44,6 +45,11 @@ public class ChatController {
     @GetMapping("/room/{userIdx}")
     public BaseResponse<List<GetChattingRoomList>> getChattingRoom(@PathVariable("userIdx") int userIdx) {
         try{
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userIdx != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
             List<GetChattingRoomList> getChattingRoomLists = chatProvider.getChattingRoom(userIdx);
             return new BaseResponse<>(getChattingRoomLists);
         } catch(BaseException exception){
@@ -85,8 +91,34 @@ public class ChatController {
     @GetMapping("/message/{roomIdx}")
     public BaseResponse<List<GetMessageList>> getMessage(@PathVariable("roomIdx") int roomIdx) {
         try{
-            List<GetMessageList> getMessageLists = chatProvider.getMessage(roomIdx);
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userIdxByJwt != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            List<GetMessageList> getMessageLists = chatProvider.getMessage(roomIdx, userIdxByJwt);
             return new BaseResponse<>(getMessageLists);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+    /**
+     * 채팅방 참여 인원 조회 API
+     * [GET] /chats/message/:roomIdx
+     * @return BaseResponse<List<GetChattingRoomList>>
+     */
+    // Body
+    @ResponseBody
+    @GetMapping("/user/{roomIdx}")
+    public BaseResponse<List<GetChattingParticipateUser>> getChattingParticipateUser(@PathVariable("roomIdx") int roomIdx) {
+        try{
+            int userIdxByJwt = jwtService.getUserIdx();
+            //userIdx와 접근한 유저가 같은지 확인
+            if(userIdxByJwt != userIdxByJwt){
+                return new BaseResponse<>(INVALID_USER_JWT);
+            }
+            List<GetChattingParticipateUser> getChattingParticipateUsers = chatProvider.getChattingParticipateUser(roomIdx, userIdxByJwt);
+            return new BaseResponse<>(getChattingParticipateUsers);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }

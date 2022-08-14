@@ -1,10 +1,7 @@
 package com.example.demo.src.chat;
 
 
-import com.example.demo.src.chat.model.GetChattingRoomList;
-import com.example.demo.src.chat.model.GetLastChat;
-import com.example.demo.src.chat.model.GetMessageList;
-import com.example.demo.src.chat.model.PostMessage;
+import com.example.demo.src.chat.model.*;
 import com.example.demo.src.crew.model.*;
 import com.example.demo.src.user.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +95,20 @@ public class ChatDao {
                         rs.getString("type"),
                         rs.getString("chatContent"),
                         rs.getString("updatedAt")), getUserParams
+        );
+    }
+    public List<GetChattingParticipateUser> getChattingParticipateUser(int roomIdx){
+        String getFestivalsQuery = "select " +
+                "Member.userIdx, userNickName, userProfileImageUrl " +
+                "from DXDB.Member " +
+                "left join DXDB.User on Member.userIdx = User.userIdx " +
+                "where roomIdx = ?";
+        int getRoomParams = roomIdx;
+        return this.jdbcTemplate.query(getFestivalsQuery,
+                (rs,rowNum) -> new GetChattingParticipateUser(
+                        rs.getInt("userIdx"),
+                        rs.getString("userProfileImageUrl"),
+                        rs.getString("userNickName")), getRoomParams
         );
     }
 }
