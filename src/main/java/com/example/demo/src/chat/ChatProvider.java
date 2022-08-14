@@ -3,6 +3,7 @@ package com.example.demo.src.chat;
 
 import com.example.demo.config.BaseException;
 import com.example.demo.src.chat.model.GetChattingRoomList;
+import com.example.demo.src.chat.model.GetLastChat;
 import com.example.demo.src.chat.model.GetMessageList;
 import com.example.demo.src.crew.model.GetCrews;
 import com.example.demo.src.crew.model.GetDetailCrews;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.demo.config.BaseResponseStatus.DATABASE_ERROR;
@@ -35,6 +37,18 @@ public class ChatProvider {
     public List<GetChattingRoomList> getChattingRoom(int userIdx) throws BaseException{
         try{
             List<GetChattingRoomList> getChattingRoomLists = chatDao.getChattingRoom(userIdx);
+            for(GetChattingRoomList i : getChattingRoomLists){
+                List<GetLastChat> getLastChatList = chatDao.getLastChat(i.getRoomIdx());
+                if(getLastChatList.isEmpty()){
+                    i.setChatContent("");
+                    i.setUpdatedAt("");
+                }else{
+                    i.setChatContent(getLastChatList.get(0).getChatContent());
+                    i.setUpdatedAt(getLastChatList.get(0).getUpdatedAt());
+                }
+
+                getLastChatList = null;
+            }
             return getChattingRoomLists;
         }
         catch (Exception exception) {

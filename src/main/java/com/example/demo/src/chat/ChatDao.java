@@ -2,6 +2,7 @@ package com.example.demo.src.chat;
 
 
 import com.example.demo.src.chat.model.GetChattingRoomList;
+import com.example.demo.src.chat.model.GetLastChat;
 import com.example.demo.src.chat.model.GetMessageList;
 import com.example.demo.src.chat.model.PostMessage;
 import com.example.demo.src.crew.model.*;
@@ -25,7 +26,7 @@ public class ChatDao {
 
     public List<GetChattingRoomList> getChattingRoom(int userIdx){
         String getFestivalsQuery = "select " +
-                "Room.crewIdx, Room.roomIdx, MAIN_IMG_NORMAL as festivalImageUrl, crewName, type, chatContent, Chat.updatedAt " +
+                "Room.crewIdx, Room.roomIdx, MAIN_IMG_NORMAL as festivalImageUrl, crewName, type " +
                 "from DXDB.Room " +
                 "join DXDB.Member on Room.roomIdx = Member.roomIdx " +
                 "join Crew on Member.crewIdx = Crew.crewIdx " +
@@ -41,6 +42,16 @@ public class ChatDao {
                         rs.getString("festivalImageUrl"),
                         rs.getString("crewName"),
                         rs.getString("type"),
+                        "",
+                        ""), getUserParams
+        );
+    }
+
+    public List<GetLastChat> getLastChat(int roomIdx){
+        String getFestivalsQuery = "select chatContent, updatedAt from DXDB.Chat where roomIdx = ? order by Chat.createdAt desc";
+        int getUserParams = roomIdx;
+        return this.jdbcTemplate.query(getFestivalsQuery,
+                (rs,rowNum) -> new GetLastChat(
                         rs.getString("chatContent"),
                         rs.getString("updatedAt")), getUserParams
         );
