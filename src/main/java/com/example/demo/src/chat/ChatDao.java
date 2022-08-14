@@ -72,14 +72,18 @@ public class ChatDao {
     }
     public List<GetMessageList> getMessage(int userIdx){
         String getFestivalsQuery = "select " +
-                "roomIdx, userIdx, type, chatContent, updatedAt " +
+                "roomIdx, Chat.userIdx, userProfileImageUrl, userNickName, type, chatContent, Chat.updatedAt " +
                 "from DXDB.Chat " +
-                "where roomIdx = ? ";
+                "join DXDB.User on Chat.userIdx = User.userIdx " +
+                "where roomIdx = ? " +
+                "order by updatedAt asc";
         int getUserParams = userIdx;
         return this.jdbcTemplate.query(getFestivalsQuery,
                 (rs,rowNum) -> new GetMessageList(
                         rs.getInt("roomIdx"),
                         rs.getInt("userIdx"),
+                        rs.getString("userProfileImageUrl"),
+                        rs.getString("userNickName"),
                         rs.getString("type"),
                         rs.getString("chatContent"),
                         rs.getString("updatedAt")), getUserParams

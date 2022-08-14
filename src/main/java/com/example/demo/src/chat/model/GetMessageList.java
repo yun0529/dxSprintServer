@@ -10,6 +10,8 @@ import lombok.Setter;
 public class GetMessageList {
     int roomIdx;
     int userIdx;
+    String userProfileImageUrl;
+    String userNickName;
     String type;
     String chatContent;
     String updatedAt;
