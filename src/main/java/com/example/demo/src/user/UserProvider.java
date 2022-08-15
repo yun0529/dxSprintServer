@@ -119,15 +119,10 @@ public class UserProvider {
         }
 
         if(user.getUserPw().equals(encryptPwd)){
-            if(user.getStatus().equals("Active")){
-                throw new BaseException(FAILED_TO_LOGIN_STATUS);
-            }
-            else{
-                userDao.modifyUserStatusLogIn(postLoginReq);
-                int userIdx = user.getUserIdx();
-                String jwt = jwtService.createJwt(userIdx);
-                return new PostLoginRes(userIdx,jwt);
-            }
+            userDao.modifyUserStatusLogIn(postLoginReq);
+            int userIdx = user.getUserIdx();
+            String jwt = jwtService.createJwt(userIdx);
+            return new PostLoginRes(userIdx,jwt);
         }
         else{
             throw new BaseException(FAILED_TO_LOGIN);
