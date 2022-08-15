@@ -147,7 +147,7 @@ public class UserController {
             return new BaseResponse<>(POST_USERS_INVALID_PASSWORD);
         }
         //이메일 형식
-        if(!isRegexUserEmail(postUserReq.getPhoneNumber())){
+        if(!isRegexUserEmail(postUserReq.getEmail())){
             return new BaseResponse<>(POST_USERS_INVALID_EMAIL);
         }
         //전화번호 자릿수
