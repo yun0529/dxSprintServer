@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class CheckCrewHeadCount {
-    int headCount;
+    int participateCount;
     int totalHeadCount;
 }

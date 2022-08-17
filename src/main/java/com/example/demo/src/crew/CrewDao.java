@@ -73,14 +73,14 @@ public class CrewDao {
                 getIdxParams);
     }
     public CheckCrewHeadCount getCrewHeadCount(int crewIdx){
-        String getIdQuery = "select count(Member.userIdx), crewHeadCount " +
+        String getIdQuery = "select count(Member.userIdx) as participateCount, crewHeadCount as totalHeadCount " +
                 "from DXDB.Member " +
                 "join Crew on Member.crewIdx = Crew.crewIdx " +
                 "where Member.crewIdx = ?";
         int getIdxParams = crewIdx;
         return this.jdbcTemplate.queryForObject(getIdQuery,
                 (rs,rowNum)-> new CheckCrewHeadCount(
-                        rs.getInt("headCount"),
+                        rs.getInt("participateCount"),
                         rs.getInt("totalHeadCount")
                 ), getIdxParams);
     }

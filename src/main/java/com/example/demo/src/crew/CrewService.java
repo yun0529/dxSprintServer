@@ -60,7 +60,7 @@ public class CrewService {
             throw new BaseException(DO_LOGIN);
         }
         CheckCrewHeadCount checkCrewHeadCount = crewDao.getCrewHeadCount(postCrewParticipateReq.getCrewIdx());
-        if(checkCrewHeadCount.getHeadCount() >= checkCrewHeadCount.getTotalHeadCount()){
+        if(checkCrewHeadCount.getParticipateCount() >= checkCrewHeadCount.getTotalHeadCount()){
             throw new BaseException(ALREADY_FULL_COUNT);
         }
         try{
