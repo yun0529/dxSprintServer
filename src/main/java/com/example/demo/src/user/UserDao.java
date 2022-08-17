@@ -138,7 +138,7 @@ public class UserDao {
         String createUserQuery = "insert into User (userEmail, userPw, userPhoneNumber,userNickName,userProfileImageUrl) VALUES (?,?,?,?,?)";
 
         Object[] createUserParams = new Object[]{postUserReq.getEmail(), postUserReq.getPassWord(), postUserReq.getPhoneNumber(), postUserReq.getNickName(),
-                "https://firebasestorage.googleapis.com/v0/b/risingtest-11264.appspot.com/o/images%2F%EC%95%84%EC%9D%B4%EB%94%94%EC%96%B4%EC%8A%A4%20%EA%B8%B0%EB%B3%B8%EC%9D%B4%EB%AF%B8%EC%A7%80.png?alt=media&token=8f45a074-b948-4f70-8b0a-4a70ae83b585"};
+                "https://firebasestorage.googleapis.com/v0/b/dx-sprint-e06b6.appspot.com/o/vector_1.png?alt=media&token=5de587bc-937b-421a-ba91-446554008af0"};
         this.jdbcTemplate.update(createUserQuery, createUserParams);
 
         String lastInsertIdQuery = "select last_insert_id()";
