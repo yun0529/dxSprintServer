@@ -122,7 +122,7 @@ public class UserProvider {
             userDao.modifyUserStatusLogIn(postLoginReq);
             int userIdx = user.getUserIdx();
             String jwt = jwtService.createJwt(userIdx);
-            return new PostLoginRes(userIdx,jwt);
+            return new PostLoginRes(userIdx,jwt, user.getUserNickName());
         }
         else{
             throw new BaseException(FAILED_TO_LOGIN);

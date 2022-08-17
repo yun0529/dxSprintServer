@@ -253,22 +253,22 @@ public class UserController {
         }
     }
 
-    /**
-     * 자동 로그인 API
-     * [GET] /users/auto-login
-     * @return BaseResponse<GetInterestCategory>
-     */
-    @ResponseBody
-    @GetMapping("/auto-login") // (GET) 127.0.0.1:9000/users/interestCategory/:userNo
-    public BaseResponse<PostLoginRes> getAutoLogin() {
-        // Get Users
-        try{
-            int userIdxByJwt = jwtService.getUserIdx();
-            userProvider.getAutoLogin(userIdxByJwt);
-            PostLoginRes getAutoLogin = new PostLoginRes(userIdxByJwt, jwtService.getJwt());
-            return new BaseResponse<>(getAutoLogin);
-        } catch(BaseException exception){
-            return new BaseResponse<>((exception.getStatus()));
-        }
-    }
+//    /**
+//     * 자동 로그인 API
+//     * [GET] /users/auto-login
+//     * @return BaseResponse<GetInterestCategory>
+//     */
+//    @ResponseBody
+//    @GetMapping("/auto-login") // (GET) 127.0.0.1:9000/users/interestCategory/:userNo
+//    public BaseResponse<PostLoginRes> getAutoLogin() {
+//        // Get Users
+//        try{
+//            int userIdxByJwt = jwtService.getUserIdx();
+//            userProvider.getAutoLogin(userIdxByJwt);
+//            PostLoginRes getAutoLogin = new PostLoginRes(userIdxByJwt, jwtService.getJwt());
+//            return new BaseResponse<>(getAutoLogin);
+//        } catch(BaseException exception){
+//            return new BaseResponse<>((exception.getStatus()));
+//        }
+//    }
 }
