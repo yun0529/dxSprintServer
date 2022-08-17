@@ -5,6 +5,7 @@ import com.example.demo.config.BaseException;
 import com.example.demo.src.crew.model.GetCrews;
 import com.example.demo.src.crew.model.GetDetailCrews;
 import com.example.demo.src.crew.model.GetParticipateCrew;
+import com.example.demo.src.crew.model.GetRoomIdx;
 import com.example.demo.utils.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +77,16 @@ public class CrewProvider {
         try{
             List<GetCrews> getCrews = crewDao.getCrewsByFestivalIdx(festivalIdx);
             return getCrews;
+        }
+        catch (Exception exception) {
+            System.out.println(exception);
+            throw new BaseException(DATABASE_ERROR);
+        }
+    }
+    public GetRoomIdx getRoomIdx(int userIdx, int crewIdx) throws BaseException{
+        try{
+            GetRoomIdx getRoomIdx = crewDao.getRoomIdxByCrewUser(userIdx, crewIdx);
+            return getRoomIdx;
         }
         catch (Exception exception) {
             System.out.println(exception);

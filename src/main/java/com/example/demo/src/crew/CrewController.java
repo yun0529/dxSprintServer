@@ -83,7 +83,7 @@ public class CrewController {
     /**
      * 크루 참가 API
      * [POST] /crews/participate
-     * @return BaseResponse<PostFestivalReq>
+     * @return BaseResponse<String>
      */
     // Body
     @ResponseBody
@@ -95,10 +95,8 @@ public class CrewController {
             if(postCrewParticipateReq.getUserIdx() != userIdxByJwt){
                 return new BaseResponse<>(INVALID_USER_JWT);
             }
-
             crewService.postCrewParticipate(postCrewParticipateReq);
             String result = "크루 참여 완료";
-
             return new BaseResponse<>(result);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
@@ -202,6 +200,22 @@ public class CrewController {
         try{
             List<GetParticipateCrew> getParticipateCrews = crewProvider.getParticipateCrew(userIdx);
             return new BaseResponse<>(getParticipateCrews);
+        } catch(BaseException exception){
+            return new BaseResponse<>((exception.getStatus()));
+        }
+    }
+    /**
+     * 참여할 크루 채팅방 번호 조회 API
+     * [GET] /crews/room/:userIdx/:crewIdx
+     * @return BaseResponse<List<GetParticipateCrew>>
+     */
+    // Body
+    @ResponseBody
+    @GetMapping("/room/{userIdx}/{crewIdx}")
+    public BaseResponse<GetRoomIdx> getRoomIdx(@PathVariable("userIdx") int userIdx, @PathVariable("crewIdx") int crewIdx) {
+        try{
+            GetRoomIdx getRoomIdx = crewProvider.getRoomIdx(userIdx,crewIdx);
+            return new BaseResponse<>(getRoomIdx);
         } catch(BaseException exception){
             return new BaseResponse<>((exception.getStatus()));
         }

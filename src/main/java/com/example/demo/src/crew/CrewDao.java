@@ -48,6 +48,17 @@ public class CrewDao {
         return this.jdbcTemplate.queryForObject(lastInsertIdQuery,int.class);
     }
 
+    public GetRoomIdx getRoomIdxByCrewUser(int userIdx, int crewIdx){
+        String getIdQuery = "select roomIdx, updatedAt from Member where userIdx = ? and crewIdx = ?";
+        int getUserIdxParams = userIdx;
+        int getCrewIdxParams = crewIdx;
+        return this.jdbcTemplate.queryForObject(getIdQuery,
+                (rs,rowNum)-> new GetRoomIdx(
+                        rs.getInt("roomIdx"),
+                        rs.getString("updatedAt")
+                ), getUserIdxParams, getCrewIdxParams);
+    }
+
     public User getUserByUserIdx(int userIdx){
         String getIdQuery = "select userIdx, userEmail, userPw, userNickName, status from User where userIdx = ? ";
         int getIdxParams = userIdx;
